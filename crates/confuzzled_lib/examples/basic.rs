@@ -4,8 +4,8 @@ use confuzzled_lib::{Fuzzer, MutationSet, Seed};
 
 fn main() -> anyhow::Result<()> {
     // Create a fuzzer with minimal seed and semantic mutations
-    let fuzzer = Fuzzer::builder()
-        .seed(Seed::Minimal)
+    let mut fuzzer = Fuzzer::builder()
+        .seed(Seed::minimal())
         .mutations(MutationSet::SEMANTIC | MutationSet::STRUCTURAL)
         .rng_seed(42) // Fixed seed for reproducibility
         .build()?;
@@ -16,13 +16,8 @@ fn main() -> anyhow::Result<()> {
     // Print generated images
     for (i, image) in images.iter().enumerate() {
         println!("Generated image {}", i);
-        println!("  Manifests: {}", image.manifests.len());
-        if let Some(ref config) = image.config {
-            if let Some(ref container_config) = config.config {
-                println!("  Entrypoint: {:?}", container_config.entrypoint);
-                println!("  Cmd: {:?}", container_config.cmd);
-            }
-        }
+        println!("  Has manifest: {}", image.manifest.is_some());
+        println!("  Has config: {}", image.config.is_some());
         println!("  Layers: {}", image.layers.len());
         println!();
     }
