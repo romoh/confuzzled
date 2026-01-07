@@ -185,10 +185,9 @@ async fn main() -> anyhow::Result<()> {
 ```
 confuzzled/
 ├── crates/
-│   ├── confuzzled_lib/        # Core library
+│   ├── confuzzled_lib/        # Core library (includes examples/)
 │   ├── confuzzled_cli/        # CLI binary
 │   └── confuzzled_test/       # Test utilities
-├── examples/
 └── tests/
 ```
 

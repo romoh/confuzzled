@@ -16,13 +16,8 @@ fn main() -> anyhow::Result<()> {
     // Print generated images
     for (i, image) in images.iter().enumerate() {
         println!("Generated image {}", i);
-        println!("  Manifests: {}", image.manifests.len());
-        if let Some(ref config) = image.config {
-            if let Some(ref container_config) = config.config {
-                println!("  Entrypoint: {:?}", container_config.entrypoint);
-                println!("  Cmd: {:?}", container_config.cmd);
-            }
-        }
+        println!("  Has manifest: {}", image.manifest.is_some());
+        println!("  Has config: {}", image.config.is_some());
         println!("  Layers: {}", image.layers.len());
         println!();
     }
