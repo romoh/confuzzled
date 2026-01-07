@@ -1,6 +1,6 @@
 # confuzzled 😵‍💫
 
-[![Build](https://github.com/romoh/confuzzled/actions/workflows/build.yml/badge.svg)](https://github.com/romoh/confuzzled/actions/workflows/build.yml)
+[![Build & Test](https://github.com/romoh/confuzzled/actions/workflows/build.yml/badge.svg?label=Build%20%26%20Test)](https://github.com/romoh/confuzzled/actions/workflows/build.yml)
 
 A structure-aware CONtainer FUZZing tool for container images that can generate
 malformed container images.
