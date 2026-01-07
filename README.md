@@ -13,22 +13,14 @@ admission controllers against malformed or unexpected container images.
 Confuzzled focuses on *generating* fuzzed container images, not running them.
 This keeps it reusable across different scenarios.
 
-## Fuzzing Levels
+## Mutation Categories
 
-### A. Artifact Level (file/bytes)
-- Missing headers
-- Malformed JSON manifests
-- Truncated layer blobs
-- Invalid checksums
-- Corrupted compression streams
-
-### B. Semantic Level (container invariants)
-- Valid JSON but invalid semantics
-- Layer order mismatches
-- Config references non-existent layers
-- Wrong mediaTypes
-- Size/digest mismatches
-- Entrypoint/env/resource edge cases
+| Category | Description | Examples |
+|----------|-------------|----------|
+| **Structural** | Remove/reorder/duplicate components | Remove manifest, reorder layers, dangling blobs |
+| **Format** | Corrupt encoding/format | Truncated blobs, corrupted compression |
+| **Semantic** | Valid format, invalid semantics | Digest mismatch, wrong size, bad media type |
+| **Extreme** | Edge cases with extreme values | 100+ layers, deep nesting, empty everything |
 
 ## Installation
 
