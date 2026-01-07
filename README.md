@@ -1,7 +1,7 @@
 # confuzzled 😵‍💫
 
 [![Build & Test](https://github.com/romoh/confuzzled/actions/workflows/build.yml/badge.svg?label=Build%20%26%20Test)](https://github.com/romoh/confuzzled/actions/workflows/build.yml)
-[!License MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A structure-aware CONtainer FUZZing tool for container images that can generate
 malformed container images.
