@@ -11,10 +11,7 @@ the robustness of their container runtimes, image registries, scanners, and
 admission controllers against malformed or unexpected container images.
 
 Confuzzled focuses on *generating* fuzzed container images, not running them.
-This keeps it reusable across:
-- Container runtimes
-- Image registries
-- .... etc.
+This keeps it reusable across different scenarios.
 
 ## Fuzzing Levels
 
