@@ -1,6 +1,7 @@
 # confuzzled 😵‍💫
 
 [![Build & Test](https://github.com/romoh/confuzzled/actions/workflows/build.yml/badge.svg?label=Build%20%26%20Test)](https://github.com/romoh/confuzzled/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 A structure-aware CONtainer FUZZing tool for container images that can generate
 malformed container images.
@@ -201,8 +202,11 @@ confuzzled generate \
 # 2. Test each image against container runtime
 for dir in ./corpus/fuzzed-*; do
   echo "Testing $dir..."
-  skopeo copy "oci:$dir" docker-daemon:test:fuzz 2>&1 || echo "REJECTED by skopeo"
-  docker run --rm test:fuzz echo ok 2>&1 || echo "REJECTED by docker"
+  if skopeo copy "oci:$dir" docker-daemon:test:fuzz 2>&1; then
+    docker run --rm test:fuzz echo ok 2>&1 || echo "REJECTED by docker"
+  else
+    echo "REJECTED by skopeo"
+  fi
 done
 ```
 
