@@ -4,8 +4,8 @@ use confuzzled_lib::{Fuzzer, MutationSet, Seed};
 
 fn main() -> anyhow::Result<()> {
     // Create a fuzzer with minimal seed and semantic mutations
-    let fuzzer = Fuzzer::builder()
-        .seed(Seed::Minimal)
+    let mut fuzzer = Fuzzer::builder()
+        .seed(Seed::minimal())
         .mutations(MutationSet::SEMANTIC | MutationSet::STRUCTURAL)
         .rng_seed(42) // Fixed seed for reproducibility
         .build()?;

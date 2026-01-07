@@ -1,7 +1,23 @@
-# confuzzled (CONtainer FUZZing LED)
+git status  --seed "mcr.microsoft.com/azurelinux/base/core:3.0" \
+  --mutations all \
+  --count 100 \
+  --out ./corpus
 
-A structure-aware fuzzing tool for container images that can generate malformed
-container images.
+# 2. Test each image against container runtime
+for dir in ./corpus/fuzzed-*; do
+  echo "Testing $dir..."
+  skopeo copy "oci:$dir" docker-daemon:test:fuzz 2>&1 || echo "REJECTED by skopeo"
+  docker run --rm test:fuzz echo ok 2>&1 || echo "REJECTED by docker"
+done
+```
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details
+# confuzzled 😵‍💫
+
+A structure-aware CONtainer FUZZing tool for container images that can generate
+malformed container images.
 
 ## Overview
 
@@ -12,11 +28,9 @@ admission controllers against malformed or unexpected container images.
 
 Confuzzled focuses on *generating* fuzzed container images, not running them.
 This keeps it reusable across:
-- Container runtimes (runc, crun, kata, gVisor)
-- Image registries (Docker Hub, Harbor, Zot)
-- Image scanners (Trivy, Grype, Snyk)
-- Admission controllers (OPA, Kyverno)
-- Snapshotters and storage drivers
+- Container runtimes
+- Image registries
+- .... etc.
 
 ## Fuzzing Levels
 
@@ -103,12 +117,9 @@ confuzzled mutations --category structural
 
 | Seed Type | Example | Description |
 |-----------|---------|-------------|
-| **Registry** | `mcr.microsoft.com/azurelinux/base/core:3.0` | Pull from container registry |
-| **Registry** | `docker.io/library/busybox:latest` | Docker Hub images |
-| **Registry** | `ghcr.io/owner/repo:tag` | GitHub Container Registry |
+| **Registry** | `docker.io/library/busybox:latest` | Container registry images |
 | **Built-in** | `minimal` | Empty scratch-like image |
 | **Built-in** | `busybox` | Minimal image with /bin/sh |
-| **Local** | `./path/to/oci-dir` | OCI image layout directory |
 
 ### Mutation Categories
 
@@ -122,37 +133,26 @@ confuzzled mutations --category structural
 ### Library Usage
 
 ```rust
-use confuzzled::{Fuzzer, Seed, MutationCategory};
+use confuzzled_lib::{Seed, Pipeline};
+use confuzzled_lib::mutations::structural::RemoveConfig;
+use rand::SeedableRng;
 
-fn main() -> anyhow::Result<()> {
-    // Pull image from registry and fuzz it
-    let fuzzer = Fuzzer::builder()
-        .seed(Seed::from_registry("mcr.microsoft.com/azurelinux/base/core:3.0"))
-        .mutations(vec![MutationCategory::Structural, MutationCategory::Semantic])
-        .rng_seed(Some(42))  // deterministic
-        .build()?;
+#[tokio::main]
+async fn main() -> anyhow::Result<()> {
+    // Pull image from registry
+    let image = Seed::Registry("mcr.microsoft.com/azurelinux/base/core:3.0".into())
+        .load()
+        .await?;
 
-    for (i, image) in fuzzer.generate(10).enumerate() {
-        let path = format!("./corpus/fuzzed-{:04}", i);
-        image.write_to_oci_dir(&path)?;
-    }
+    // Apply mutations via pipeline
+    let mut rng = rand::rngs::StdRng::seed_from_u64(42);
+    let pipeline = Pipeline::new().then(RemoveConfig);
+    let fuzzed = pipeline.apply(image, &mut rng)?;
 
+    // Write to OCI directory
+    fuzzed.write_to_oci_dir("./corpus/fuzzed-0000")?;
     Ok(())
 }
-```
-
-### Mutation Pipeline (Composable)
-
-```rust
-use confuzzled::mutations::{Pipeline, Mutation};
-use confuzzled::mutations::structural::RemoveLayer;
-use confuzzled::mutations::extreme::AddManyLayers;
-
-let pipeline = Pipeline::new()
-    .add(Box::new(RemoveLayer))
-    .add(Box::new(AddManyLayers));
-
-let fuzzed = pipeline.apply(seed_image)?;
 ```
 
 ## Architecture
