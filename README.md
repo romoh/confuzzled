@@ -1,19 +1,3 @@
-git status  --seed "mcr.microsoft.com/azurelinux/base/core:3.0" \
-  --mutations all \
-  --count 100 \
-  --out ./corpus
-
-# 2. Test each image against container runtime
-for dir in ./corpus/fuzzed-*; do
-  echo "Testing $dir..."
-  skopeo copy "oci:$dir" docker-daemon:test:fuzz 2>&1 || echo "REJECTED by skopeo"
-  docker run --rm test:fuzz echo ok 2>&1 || echo "REJECTED by docker"
-done
-```
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for details
 # confuzzled 😵‍💫
 
 A structure-aware CONtainer FUZZing tool for container images that can generate
