@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/confuzzled_lib",
+    "crates/confuzzled_cli",
+    "crates/confuzzled_test",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Roaa Sakr <romoh@microsoft.com>"]
+license = "MIT"
+repository = "https://github.com/romoh/confuzzled"
+description = "A fuzz testing tool that generates containers with different compositions"
+
+[workspace.dependencies]
+confuzzled_lib = { path = "crates/confuzzled_lib" }
+clap = { version = "4.4", features = ["derive"] }
+tokio = { version = "1.35", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+rand = "0.8"
+sha2 = "0.10"
+oci-distribution = "0.11"
