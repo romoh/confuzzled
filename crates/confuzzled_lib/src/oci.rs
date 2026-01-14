@@ -344,10 +344,10 @@ impl ImageConfig {
             rootfs: RootFs {
                 // Empty tar has this digest (uncompressed)
                 // The hash below is for empty content
-                diff_ids: vec![
+                diff_ids: Some(vec![
                     "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
                         .to_string(),
-                ],
+                ]),
                 rootfs_type: "layers".to_string(),
             },
             history: None,
@@ -389,7 +389,10 @@ pub struct RootFs {
     #[serde(rename = "type")]
     pub rootfs_type: String,
 
-    pub diff_ids: Vec<String>,
+    /// Layer diff IDs. When None, serializes as null which can trigger
+    /// edge cases in container runtimes that expect this field.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub diff_ids: Option<Vec<String>>,
 }
 
 /// Image history entry
