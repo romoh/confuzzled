@@ -116,6 +116,112 @@ impl Mutation for EmptyEverything {
     }
 }
 
+/// Empty layers with null diff_ids
+#[derive(Debug)]
+pub struct EmptyLayersNullDiffIds;
+
+impl Mutation for EmptyLayersNullDiffIds {
+    fn name(&self) -> &'static str {
+        "empty-layers-null-diffids"
+    }
+    fn category(&self) -> MutationCategory {
+        MutationCategory::Extreme
+    }
+
+    fn apply(&self, mut image: Image, _rng: &mut StdRng) -> Result<Image> {
+        // Clear all layers from manifest
+        image.layers.clear();
+
+        // Set diff_ids to None (serializes as null or omitted)
+        if let Some(ref mut config) = image.config {
+            config.rootfs.diff_ids = None;
+        }
+
+        Ok(image)
+    }
+}
+
+/// Null diff_ids with layers intact
+///
+/// Sets diff_ids to null while keeping the actual layers.
+/// This creates a mismatch where layers exist but config claims none.
+#[derive(Debug)]
+pub struct NullDiffIdsOnly;
+
+impl Mutation for NullDiffIdsOnly {
+    fn name(&self) -> &'static str {
+        "null-diffids-only"
+    }
+    fn category(&self) -> MutationCategory {
+        MutationCategory::Extreme
+    }
+
+    fn apply(&self, mut image: Image, _rng: &mut StdRng) -> Result<Image> {
+        // Keep layers but null out diff_ids
+        if let Some(ref mut config) = image.config {
+            config.rootfs.diff_ids = None;
+        }
+        Ok(image)
+    }
+}
+
+/// Empty diff_ids array with layers intact
+///
+/// Sets diff_ids to an empty array while keeping actual layers.
+/// This creates a count mismatch (N layers, 0 diff_ids).
+#[derive(Debug)]
+pub struct EmptyDiffIds;
+
+impl Mutation for EmptyDiffIds {
+    fn name(&self) -> &'static str {
+        "empty-diffids"
+    }
+    fn category(&self) -> MutationCategory {
+        MutationCategory::Extreme
+    }
+
+    fn apply(&self, mut image: Image, _rng: &mut StdRng) -> Result<Image> {
+        if let Some(ref mut config) = image.config {
+            config.rootfs.diff_ids = Some(vec![]);
+        }
+        Ok(image)
+    }
+}
+
+/// Mismatched diff_ids count
+///
+/// Adds extra fake diff_ids or removes some, creating a count mismatch
+/// between manifest layers and config diff_ids.
+#[derive(Debug)]
+pub struct MismatchedDiffIdsCount;
+
+impl Mutation for MismatchedDiffIdsCount {
+    fn name(&self) -> &'static str {
+        "mismatched-diffids-count"
+    }
+    fn category(&self) -> MutationCategory {
+        MutationCategory::Extreme
+    }
+
+    fn apply(&self, mut image: Image, rng: &mut StdRng) -> Result<Image> {
+        if let Some(ref mut config) = image.config {
+            if let Some(ref mut diff_ids) = config.rootfs.diff_ids {
+                // Randomly add extra or remove entries
+                if rng.gen_bool(0.5) && !diff_ids.is_empty() {
+                    // Remove half of the diff_ids
+                    diff_ids.truncate(diff_ids.len() / 2);
+                } else {
+                    // Add fake diff_ids
+                    for _ in 0..rng.gen_range(1..5) {
+                        diff_ids.push(format!("sha256:{:064x}", rng.gen::<u128>()));
+                    }
+                }
+            }
+        }
+        Ok(image)
+    }
+}
+
 /// Create extremely long strings
 #[derive(Debug)]
 pub struct HugeStrings;

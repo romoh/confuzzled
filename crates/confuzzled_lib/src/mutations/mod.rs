@@ -170,6 +170,10 @@ impl MutationSet {
             Box::new(DeepPathNesting),
             Box::new(ExtremeValues),
             Box::new(EmptyEverything),
+            Box::new(EmptyLayersNullDiffIds),
+            Box::new(NullDiffIdsOnly),
+            Box::new(EmptyDiffIds),
+            Box::new(MismatchedDiffIdsCount),
         ];
         self.pick_random(all, rng)
     }
